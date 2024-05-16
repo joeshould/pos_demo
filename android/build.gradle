@@ -1,0 +1,35 @@
+def static releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+buildscript {
+    ext.kotlin_version = '1.6.20'
+    repositories {
+        google()
+        maven { url 'https://nexus01.paxengine.com.cn/nexus/repository/maven-android-public/'}
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        maven { url 'https://nexus01.paxengine.com.cn/nexus/repository/maven-android-public/'}
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

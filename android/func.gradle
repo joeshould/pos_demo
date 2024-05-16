@@ -1,0 +1,30 @@
+ext.releaseTime = { ->
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+ext.loadSigningConfigs = {initSigningConfig = null ->
+
+    def signingConfig = initSigningConfig ? initSigningConfig : android.signingConfigs.release
+
+    Properties props = new Properties()
+    def propFile = project.rootProject.file('build.properties')
+    if (propFile.canRead()) {
+        props.load(new FileInputStream(propFile))
+        if (props != null && props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+                props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+            def storeFile = file(props['STORE_FILE'])
+            if(storeFile.canRead()){ //absolute
+                signingConfig.storeFile = storeFile
+            } else {
+                signingConfig.storeFile = file(propFile.parent + "/" + props['STORE_FILE'])
+            }
+            signingConfig.storePassword = props['STORE_PASSWORD']
+            signingConfig.keyAlias = props['KEY_ALIAS']
+            signingConfig.keyPassword = props['KEY_PASSWORD']
+        }
+    }else{
+        throw new RuntimeException("Please set storeFile")
+    }
+    return signingConfig
+}
+
